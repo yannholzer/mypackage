@@ -3,7 +3,7 @@ from setuptools import setup
 
 setup(
     # Needed to silence warnings (and to be a worthwhile package)
-    name='mypakcage',
+    name='mypackage',
     url='https://github.com/yannholzer/mypackage',
     author='Yannick Eyholzer',
     author_email='yannick.eyholzer@unige.ch',
