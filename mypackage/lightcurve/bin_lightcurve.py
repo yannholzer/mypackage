@@ -36,6 +36,7 @@ def bin_lightcurve(time:list, flux:list, cadence:float=None, period:float=None) 
         new_cadence = cadence
     
     else:
+        cadence = np.abs(time - np.roll(time, 1)).min()
         Ntransit = (time[-1] - time[0]) / period
         Nrows = np.ceil(Ntransit).astype(int)
         Nbin_in_period = period / cadence
