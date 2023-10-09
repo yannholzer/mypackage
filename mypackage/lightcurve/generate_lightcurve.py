@@ -53,7 +53,7 @@ def generate_light_curve(period:float=None, duration:float=None, epoch:float=Non
         right_points = np.searchsorted(time, transits_time+duration, "right")
         
     elif variation is None:
-        variation_amplitude = np.random.uniform(0, duration)*0.01
+        variation_amplitude = np.random.uniform(0, duration)
         variation_frequency = np.random.uniform(1, 10)*observation_time
         variation_phase = np.random.uniform(0, 2*np.pi)
         variation = (variation_amplitude, variation_frequency, variation_phase)
