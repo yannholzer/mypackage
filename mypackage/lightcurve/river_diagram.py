@@ -19,6 +19,8 @@ def create_river_diagram(time:list, flux:list, period:float):
     """
     new_time, new_flux, new_cadence, river_diagram_shape = bin_lightcurve(time, flux, period=period)
     
+    print(river_diagram_shape)
+    
     river_diagram = new_flux.reshape(river_diagram_shape)
     
     return river_diagram, (new_time, new_flux, new_cadence)
