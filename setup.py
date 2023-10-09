@@ -8,7 +8,7 @@ setup(
     author='Yannick Eyholzer',
     author_email='yannick.eyholzer@unige.ch',
     # Needed to actually package something
-    packages=[],
+    packages=["lightcurve"],
     # Needed for dependencies
     install_requires=['numpy'],
     # *strongly* suggested for sharing
