@@ -1,0 +1,11 @@
+setup.py
+mypackage/__init__.py
+mypackage/test.py
+mypackage.egg-info/PKG-INFO
+mypackage.egg-info/SOURCES.txt
+mypackage.egg-info/dependency_links.txt
+mypackage.egg-info/requires.txt
+mypackage.egg-info/top_level.txt
+mypackage/lightcurve/__init__.py
+mypackage/lightcurve/bin_lightcurve.py
+mypackage/lightcurve/river_diagram.py
