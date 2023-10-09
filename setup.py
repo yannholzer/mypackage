@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 
 setup(
@@ -8,7 +8,7 @@ setup(
     author='Yannick Eyholzer',
     author_email='yannick.eyholzer@unige.ch',
     # Needed to actually package something
-    packages=["mypackage"],
+    packages=find_packages(),
     # Needed for dependencies
     install_requires=['numpy'],
     # *strongly* suggested for sharing
