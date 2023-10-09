@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 setup(
     # Needed to silence warnings (and to be a worthwhile package)
     name='mypackage',
-    url='https://github.com/yannholzer/mypackage',
+    url='https://github.com/yannholzer/mypackage/mypackage',
     author='Yannick Eyholzer',
     author_email='yannick.eyholzer@unige.ch',
     # Needed to actually package something
