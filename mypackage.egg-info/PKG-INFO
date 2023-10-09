@@ -1,8 +1,0 @@
-Metadata-Version: 2.1
-Name: mypackage
-Version: 0.1
-Summary: A python package consisting in useful function for my phd
-Home-page: https://github.com/yannholzer/mypackage/mypackage
-Author: Yannick Eyholzer
-Author-email: yannick.eyholzer@unige.ch
-License: MIT
