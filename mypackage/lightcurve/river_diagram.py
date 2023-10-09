@@ -1,4 +1,4 @@
-from bin_lightcurve import bin_lightcurve
+from .bin_lightcurve import bin_lightcurve
 
 def create_river_diagram(time:list, flux:list, period:float):
     """Create a river diagram from a light curve and a given period
