@@ -8,4 +8,5 @@ mypackage.egg-info/requires.txt
 mypackage.egg-info/top_level.txt
 mypackage/lightcurve/__init__.py
 mypackage/lightcurve/bin_lightcurve.py
+mypackage/lightcurve/generate_lightcurve.py
 mypackage/lightcurve/river_diagram.py
