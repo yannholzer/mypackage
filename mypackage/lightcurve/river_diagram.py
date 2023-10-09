@@ -25,4 +25,3 @@ def create_river_diagram(time:list, flux:list, period:float):
     
     return river_diagram, (new_time, new_flux, new_cadence)
     
-    
