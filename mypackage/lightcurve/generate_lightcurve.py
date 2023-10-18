@@ -84,6 +84,7 @@ def generate_light_curve(period:float=None, duration:float=None, epoch:float=Non
 def create_npy_lightcurve_dataset(
     n_data:int, 
     path_to_export:str,
+    data_name:str,
     compress:bool=False,
     subfolder:bool=False,
     data_format:str="lightcurve",
@@ -108,6 +109,8 @@ def create_npy_lightcurve_dataset(
     
     path_root = os.path.join(path_to_export, data_format, "raw")
     os.makedirs(path_root, exist_ok=True)
+    path_data = os.path.join(path_root, data_name)
+    os.mkdir(path_data)
     for n in range(n_data):
           
         time, flux = generate_light_curve(period[n], duration[n], epoch, observation_time, cadence, transit_depth_fraction, sigma ,variation_parameters)
@@ -117,7 +120,7 @@ def create_npy_lightcurve_dataset(
         else:
             name = f"lc{str(n).zfill(len(str(n_data-1)))}_{str(period_range[0]).replace('.', 'p')}-{str(period_range[1]).replace('.', 'p')}"
             
-        path_lightcurve = os.path.join(path_root, name)
+        path_lightcurve = os.path.join(path_data, name)
                 
         if data_format is data_formats[0]:
             if subfolder:
