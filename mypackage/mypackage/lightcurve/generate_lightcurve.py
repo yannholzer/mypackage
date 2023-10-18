@@ -87,14 +87,13 @@ def create_npy_lightcurve_dataset(
     compress:bool=False,
     subfolder:bool=False,
     data_format:str="lightcurve",
-    name_period_range_format:str=True,
     period_range:Tuple[float, float]=(5, 10), 
     duration_range:Tuple[float, float]=(0.05, 0.1), 
     observation_time:float=4*365, 
     transit_depth_fraction:float=0.995, 
     cadence:float=29.4/(60*24), 
     epoch:float=None, 
-    sigma:float=0.005, 
+    sigma:float=0.001, 
     variation_parameters:float=None
     ):
     data_formats = ["lightcurve", "river_diagram"]
@@ -112,11 +111,7 @@ def create_npy_lightcurve_dataset(
           
         time, flux = generate_light_curve(period[n], duration[n], epoch, observation_time, cadence, transit_depth_fraction, sigma ,variation_parameters)
         
-        if name_period_range_format:
-            name = f"lc{str(n).zfill(len(str(n_data-1)))}_{str(period_range[0]).replace('.', 'p')}_{str(period_range[1]).replace('.', 'p')}"
-        else:
-            name = f"lc{str(n).zfill(len(str(n_data-1)))}_{str(period_range[0]).replace('.', 'p')}-{str(period_range[1]).replace('.', 'p')}"
-            
+        name = f"lc{str(n).zfill(len(str(n_data-1)))}_P{str(period_range[0]).replace('.', 'p')}_{str(period_range[1]).replace('.', 'p')}"
         path_lightcurve = os.path.join(path_root, name)
                 
         if data_format is data_formats[0]:
