@@ -2,7 +2,7 @@ import numpy as np
 from typing import Tuple
 import os
 
-def generate_light_curve(period:float=None, duration:float=None, epoch:float=None, observation_time:float = None, cadence:float=None, transit_depth_fraction:float=None, sigma:float=None, variation:Tuple[float, float, float]=None) -> Tuple[list, list]:
+def generate_light_curve_bkp(period:float=None, duration:float=None, epoch:float=None, observation_time:float = None, cadence:float=None, transit_depth_fraction:float=None, sigma:float=None, variation:Tuple[float, float, float]=None) -> Tuple[list, list]:
     """Synthetic light curve generator. The time arguments are in unit of Days.
     Parameters
     ----------
@@ -81,6 +81,105 @@ def generate_light_curve(period:float=None, duration:float=None, epoch:float=Non
     return time, flux
 
 
+def generate_light_curve(period:float=None, duration:float=None, epoch:float=None, observation_time:float = None, cadence:float=None, transit_depth_fraction:float=None, sigma_noise:float=None, snr:float=None, variation:Tuple[float, float, float]=None) -> Tuple[list, list]:
+    """Synthetic light curve generator. The time arguments are in unit of Days. The SNR is defined as the SNR for a single point.
+    Parameters
+    ----------
+    period : float, optional
+        The periodicity in days of the transit within the light curve, if None a random value is selected between 5 and 10 days
+    duration : float, optional
+        The duration in days of the transit whin the light curve, if None a random value is selected between 0.05 and 0.1 days
+    epoch : float, optional
+        The epoch in days of the transit, if None a random value is selected between 0 and the period.
+    observation_time : float, optional
+        The total duration of observation of the light curve, if None a duration of 4 years is selected.
+    cadence : float, optional
+        the cadence in days of the observation, if None a cadence of 29.424 minutes is selected.
+    transit_depth_fraction : float, optional
+        The depth of the transit as a fraction of one, if None a depth of 0.995 is selected.
+    sigma_noise : float, optional
+        The normal standard deviation of the noise injected in the transit , if None the deviation is equal to the depth of the transit.
+    snr: float, optional
+        The snr of the whole light curve calculated as the square root of the number of transiting points times the depth over sigma noise
+    variation : tuple, optional
+        A tuple containing the amplitude, frequency and phase of a timing variation of the transits time, if default None, random parameters are selected, if False, no variation in the transits time.
+    
+    Returns
+    -------
+    Tuple[list, list]
+        Return the time and the flux of the generated light curve.
+    """
+    if period is None:
+        period = np.random.uniform(5, 10)
+    if observation_time is None:
+        observation_time = 4*365
+    if cadence is None:
+        cadence = 29.4/(60*24)
+    if duration is None:
+        duration = np.random.uniform(0.05, 0.1)
+    if epoch is None:
+        epoch = np.random.uniform(0, period)
+    if transit_depth_fraction is None:
+        transit_depth_fraction = 0.995
+    if snr and sigma_noise is not None:
+        raise ValueError("Please enter only one argument for either the snr or the sigma noise.")
+
+    time = np.arange(0, observation_time, cadence)
+    flux = np.ones_like(time)
+    
+    transits_time = np.arange(epoch, observation_time, period)
+
+        
+    if variation is None:
+        variation_amplitude = np.random.uniform(0, duration)
+        variation_period = np.random.uniform(5, 10)*observation_time
+        variation_phase = np.random.uniform(0, 2*np.pi)
+    
+    elif variation is False:
+        variation_amplitude, variation_period, variation_phase = (0, 1, 0)    
+    
+    
+    variation = (variation_amplitude, variation_period, variation_phase)
+    
+    try:
+        variation_amplitude, variation_period, variation_phase = variation
+        time_variation = variation_amplitude*np.sin(2*np.pi*transits_time/variation_period + variation_phase)
+        left_points = np.searchsorted(time, transits_time + time_variation - duration/2, "left")
+        right_points = np.searchsorted(time, transits_time + time_variation + duration/2, "right")
+    
+    except Exception as e:
+        raise(e,"error unpacking variation parameters")
+        
+    
+    n_transiting_points = np.sum(right_points - left_points)
+    
+    for i in range(transits_time.shape[0]):
+        flux[left_points[i]:right_points[i]] *= transit_depth_fraction
+
+    if sigma_noise and snr is None:
+        sigma_noise = (1- transit_depth_fraction)
+        snr = np.sqrt(n_transiting_points)
+        flux += np.random.normal(0, sigma_noise, time.shape)
+    elif sigma_noise or snr is False:
+        pass
+    else:
+        if sigma_noise is not None:
+            snr = np.sqrt(n_transiting_points)*(1-transit_depth_fraction)/ sigma_noise
+            flux += np.random.normal(0, sigma_noise, time.shape)
+        elif snr is not None:
+            sigma_noise = np.sqrt(n_transiting_points) * (1 - transit_depth_fraction) / snr
+            flux += np.random.normal(0, sigma_noise, time.shape)
+
+    # print("sigma noise:", sigma_noise)
+    # print("snr:", snr)
+
+            
+    
+    return time, flux
+
+
+
+
 def create_npy_lightcurve_dataset(
     n_data:int, 
     path_to_export:str,
@@ -96,6 +195,7 @@ def create_npy_lightcurve_dataset(
     cadence:float=29.4/(60*24), 
     epoch:float=None, 
     sigma:float=0.005, 
+    snr:float = None,
     variation_parameters:float=None
     ):
     data_formats = ["lightcurve", "river_diagram"]
@@ -113,7 +213,7 @@ def create_npy_lightcurve_dataset(
     os.mkdir(path_data)
     for n in range(n_data):
           
-        time, flux = generate_light_curve(period[n], duration[n], epoch, observation_time, cadence, transit_depth_fraction, sigma ,variation_parameters)
+        time, flux = generate_light_curve(period[n], duration[n], epoch, observation_time, cadence, transit_depth_fraction, sigma, snr, variation_parameters)
         
         if name_period_range_format:
             name = f"lc{str(n).zfill(len(str(n_data-1)))}_{str(period_range[0]).replace('.', 'p')}_{str(period_range[1]).replace('.', 'p')}"
@@ -131,3 +231,6 @@ def create_npy_lightcurve_dataset(
         else:
             data = np.array([time, flux])
             np.save(path_lightcurve, data)
+
+
+

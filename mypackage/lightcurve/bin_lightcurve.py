@@ -29,30 +29,39 @@ def bin_lightcurve(time:list, flux:list, cadence:float=None, period:float=None) 
             "Please give at least a period or a cadence"
         )
     if period is None:
-        new_binned_time = np.arange(time[0], time[-1] + cadence/2, cadence)
-        new_binned_flux = np.ones_like(new_binned_time)*np.mean(flux)
-        Nrows = 0
-        new_bin = 0
-        new_cadence = cadence
+        n_bin = round((time[-1]-time[0])/cadence)
+        n_rows = 0
+        n_columns = 0
+        new_binned_time = np.arange(time[0] + cadence/2, time[-1]+cadence/2, cadence)
     
     else:
         cadence = np.abs(time - np.roll(time, 1)).min()
-        Ntransit = (time[-1] - time[0]) / period
-        Nrows = np.ceil(Ntransit).astype(int)
-        Nbin_in_period = period / cadence
-        new_bin = np.ceil(Nbin_in_period).astype(int)
-        new_cadence = period / new_bin
-        new_binned_time = np.arange(time[0], Nrows*period+time[0], new_cadence)[:int(new_bin*Nrows)]
-        new_binned_flux = np.ones_like(new_binned_time)*np.mean(flux)
+        n_transit = (time[-1] - time[0]) / period
+        n_rows = np.ceil(n_transit).astype(int)
+        n_bin_in_period = period / cadence
+        n_columns = np.ceil(n_bin_in_period).astype(int)
+        cadence = period / n_columns
+        n_bin = n_rows*n_columns
+        new_binned_time = np.arange(time[0] + cadence/2, n_bin*cadence + cadence/2, cadence)
+        
+        print(new_binned_time.shape)
+        print(n_rows, n_columns, n_rows*n_columns)
+        
 
-    right = np.searchsorted(time, new_binned_time, "right")
     
-    prev = 0
-    for i in range(new_binned_time.shape[0]):
-        if prev != right[i]:    
-            new_binned_flux[i] = np.mean(flux[prev:right[i]])
-            prev = right[i]
+    new_binned_flux = np.ones_like(new_binned_time)*np.mean(flux)
+    
+    
+    for i in range(n_bin):
+        bin_start_time = i * cadence
+        bin_end_time = (i+1) * cadence
+        indices_in_bin = np.where((time >= bin_start_time) & (time < bin_end_time))[0]    
+        if indices_in_bin.size > 0:
+            new_binned_flux[i] = np.mean(flux[indices_in_bin])
+        else:
+            new_binned_flux[i] = np.nan
+    
+    
+    river_diagram_shape = (n_rows, n_columns)
 
-    river_diagram_shape = (Nrows, new_bin)
-
-    return new_binned_time, new_binned_flux, new_cadence, river_diagram_shape
+    return new_binned_time, new_binned_flux, cadence, river_diagram_shape
