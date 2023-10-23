@@ -323,6 +323,7 @@ class Lightcurve:
         for i in range(self.transits_time.shape[0]):
             self.flux[left_points[i]:right_points[i]] *= self.transit_depth_fraction
             
+        self.flux_pur = np.copy(self.flux)
             
         ### add the noise ###
         if sigma_noise is None and snr is None:
@@ -389,6 +390,7 @@ class Lightcurve_npy_generator:
         
         if not isinstance(snr, list):
             snr = [snr]
+            print("here")
         
         self.snr = snr
         
@@ -428,11 +430,11 @@ class Lightcurve_npy_generator:
                     data = np.array([time, flux])
                     np.save(path_lightcurve, data)
                 
-                output = ""
                 if save_params_txt:
                    d = lc.__dict__
                    del d["time"]
                    del d["flux"]
+                   del d["flux_pur"]
                    d["transits_time"] = d["transits_time"].tolist()
                    
                        
