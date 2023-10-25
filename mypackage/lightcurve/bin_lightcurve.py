@@ -43,7 +43,7 @@ def bin_lightcurve(time:list, flux:list, cadence:float=None, period:float=None) 
         n_columns = np.floor(n_bin_in_period).astype(int)
         cadence = period / n_columns
         n_bin = n_rows*n_columns
-        new_binned_time = np.arange(time[0] + cadence/2, n_bin*cadence + cadence/2, cadence)[:int(n_rows*n_columns)] # hard fix for dimension bug, TODO
+        new_binned_time = np.arange(time[0] + cadence/2, n_bin*cadence + cadence, cadence)[:int(n_rows*n_columns)] # hard fix for dimension bug, TODO
         
     
     
