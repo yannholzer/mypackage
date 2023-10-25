@@ -47,6 +47,7 @@ def bin_lightcurve(time:list, flux:list, cadence:float=None, period:float=None) 
         
     
     print(n_bin, new_binned_time.shape[0])
+    
     new_binned_flux = np.ones_like(new_binned_time)*np.mean(flux)
     std_binned_flux = np.zeros_like(new_binned_time)
     
