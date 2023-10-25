@@ -46,7 +46,7 @@ def bin_lightcurve(time:list, flux:list, cadence:float=None, period:float=None) 
         new_binned_time = np.arange(time[0] + cadence/2, n_bin*cadence + cadence, cadence)[:int(n_rows*n_columns)] # hard fix for dimension bug, TODO
         
     
-    
+    print(n_bin, new_binned_time.shape[0])
     new_binned_flux = np.ones_like(new_binned_time)*np.mean(flux)
     std_binned_flux = np.zeros_like(new_binned_time)
     
