@@ -289,12 +289,17 @@ class Lightcurve:
             raise ValueError("Please enter only one argument for either the snr or the sigma noise.")
         
         if timing_variation_params is None:
-            timing_variation_amplitude = np.random.uniform(0, transit_duration)
-            timing_variation_period = np.random.uniform(5, 10)*observation_time
+            timing_variation_amplitude = np.random.uniform(0, 1.5)*transit_duration
+            timing_variation_period = np.random.uniform(0.3, 2)*observation_time
             timing_variation_phase = np.random.uniform(0, 2*np.pi)
             timing_variation_params = [timing_variation_amplitude, timing_variation_period, timing_variation_phase]
         elif timing_variation_params is False:
             timing_variation_params = [0, 1, 0]
+        else: 
+            #set amplitude (0) and period (0) in the range of their respective scale time
+            timing_variation_params[0] *= transit_duration
+            timing_variation_params[1] *= observation_time
+            
         
         self.period = period
         self.observation_time = observation_time
@@ -396,8 +401,8 @@ class Lightcurve_npy_generator:
         
             
         for snr in self.snr:          
-            if seed:
-                np.random.seed(18111996)
+            if seed is not None:
+                np.random.seed(seed)
             for n in range(n_data):
                 period = np.random.uniform(*period_range)
                 transit_duration = np.random.uniform(*transit_duration_range)
@@ -412,7 +417,7 @@ class Lightcurve_npy_generator:
                 str_snr = f"{lc.snr:.2f}".replace(".", "p")
                 str_p_min = f"{period_range[0]:.2f}".replace(".", "p")
                 str_p_max = f"{period_range[1]:.2f}".replace(".", "p")
-                name = f"lc{str(n).zfill(len(str(n_data-1)))}_snr{str_snr}_{str_p_min}{char}{str_p_max}"
+                name = f"lc{str(n).zfill(len(str(n_data-1)))}_{str_snr}_{str_p_min}{char}{str_p_max}"
                     
                         
                 
