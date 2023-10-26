@@ -1,7 +1,7 @@
 import numpy as np
 from typing import Tuple
 
-def bin_lightcurve(time:list, flux:list, cadence:float=None, period:float=None) -> Tuple[list, list, float, float]:
+def bin_lightcurve(time:list, flux:list, cadence:float=None, period:float=None, fill_between=True) -> Tuple[list, list, float, float]:
     """Bin a light curve consisting in a time and a flux array with a chosen cadence or period. The chosen period make sure the light curve can be folded exactly on this periodicity.
 
     Parameters
@@ -24,10 +24,8 @@ def bin_lightcurve(time:list, flux:list, cadence:float=None, period:float=None) 
         - new cadence
         - the shape of a river diagram folded on the given period if given, or empty shape otherwise.
     """
-    if period is None and cadence is None:
-        raise ValueError(
-            "Please give at least a period or a cadence"
-        )
+    if cadence is None:
+            cadence = np.abs(time - np.roll(time, 1)).min()
     if period is None:
         n_bin = round((time[-1]-time[0])/cadence)
         n_rows = 0
@@ -35,8 +33,6 @@ def bin_lightcurve(time:list, flux:list, cadence:float=None, period:float=None) 
         new_binned_time = np.arange(time[0] + cadence/2, time[-1]+cadence/2, cadence)
     
     else:
-        if cadence is None:
-            cadence = np.abs(time - np.roll(time, 1)).min()
         n_bin_in_period = period / cadence
         n_transit = (time[-1] - time[0]) / period   
         n_rows = np.ceil(n_transit).astype(int)
@@ -46,12 +42,11 @@ def bin_lightcurve(time:list, flux:list, cadence:float=None, period:float=None) 
         new_binned_time = np.arange(time[0] + cadence/2, time[0] + n_bin*cadence + cadence, cadence)[:int(n_rows*n_columns)] # hard fix for dimension bug, TODO
         
     
-    print(n_bin, new_binned_time.shape[0])
+    mean_flux = np.mean(flux)    
+    sigma_flux = np.std(flux)
 
-    new_binned_flux = np.ones_like(new_binned_time)*np.mean(flux)
+    new_binned_flux = np.ones_like(new_binned_time)*mean_flux
     std_binned_flux = np.zeros_like(new_binned_time)
-    
-    
     for i in range(n_bin):
         bin_start_time = i * cadence
         bin_end_time = (i+1) * cadence
@@ -60,10 +55,11 @@ def bin_lightcurve(time:list, flux:list, cadence:float=None, period:float=None) 
             new_binned_flux[i] = np.mean(flux[indices_in_bin])
             std_binned_flux[i] = np.std(flux[indices_in_bin])
         else:
-            new_binned_flux[i] = np.nan
-            std_binned_flux[i] = np.nan
+            if fill_between:
+                new_binned_flux[i] = np.random.normal(mean_flux, sigma_flux)
+                std_binned_flux[i] = sigma_flux
     
     
     river_diagram_shape = (n_rows, n_columns)
 
-    return new_binned_time, new_binned_flux, std_binned_flux, cadence, river_diagram_shape
+    return new_binned_time, new_binned_flux, (std_binned_flux, cadence, river_diagram_shape)
