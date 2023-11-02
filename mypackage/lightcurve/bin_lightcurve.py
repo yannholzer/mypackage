@@ -25,22 +25,21 @@ def bin_lightcurve(time:list, flux:list, cadence:float=None, period:float=None, 
         - the shape of a river diagram folded on the given period if given, or empty shape otherwise.
     """
     if cadence is None:
-            cadence = np.abs(time - np.roll(time, 1)).min()
+            cadence = np.mean(np.diff(time))
     if period is None:
         n_bin = round((time[-1]-time[0])/cadence)
         n_rows = 0
         n_columns = 0
-        new_binned_time = np.arange(time[0] + cadence/2, time[-1]+cadence/2, cadence)
+        new_binned_time = np.arange(time[0] + cadence/2, n_bin*cadence+cadence/2, cadence)
     
     else:
-        n_bin_in_period = period / cadence
+        n_bin_in_period = np.floor(period / cadence).astype(int)
+        cadence = period / n_bin_in_period
         n_transit = (time[-1] - time[0]) / period   
         n_rows = np.ceil(n_transit).astype(int)
-        n_columns = np.floor(n_bin_in_period).astype(int)
-        cadence = period / n_columns
+        n_columns = n_bin_in_period
         n_bin = n_rows*n_columns
-        new_binned_time = np.arange(time[0] + cadence/2, time[0] + n_bin*cadence + cadence, cadence)[:int(n_rows*n_columns)] # hard fix for dimension bug, TODO
-        
+        new_binned_time = np.arange(time[0] + cadence/2, time[0] + n_bin*cadence + cadence/2, cadence)[:int(n_rows*n_columns)] # hard fix for dimension bug, TODO
     
     mean_flux = np.mean(flux)    
     sigma_flux = np.std(flux)

@@ -2,6 +2,7 @@ import numpy as np
 from typing import Tuple
 import os
 import yaml
+import shutil
 
 
 # CONSTANT #############
@@ -312,11 +313,11 @@ class Lightcurve:
         timing_variation_amplitude, timing_variation_period, timing_variation_phase = self.timing_variation_params
       
         ### instantiate time and flux arrays ###        
-        self.time = np.arange(self.t0, self.observation_time + self.t0, self.cadence)
+        self.time = np.arange(self.t0, self.observation_time + self.t0, self.cadence, dtype=float)
         self.flux = np.ones_like(self.time)
         
         ### get the transit time according to the parameters ###
-        self.transits_time = np.arange(self.epoch, self.observation_time, self.period)
+        self.transits_time = np.arange(self.t0 + self.epoch, self.observation_time + self.t0, self.period, dtype=float)
         self.transits_time += timing_variation_amplitude*np.sin(2*np.pi*self.transits_time/timing_variation_period + timing_variation_phase)
 
         ### find the left and right limits of each transits and apply the transit fraction
@@ -346,8 +347,8 @@ class Lightcurve:
                 self.flux += np.random.normal(0, self.sigma_noise, self.time.shape)
             elif snr is not None:
                 self.snr = snr
-                sigma_noise = np.sqrt(n_transiting_points) * (1 - self.transit_depth_fraction) / self.snr
-                self.flux += np.random.normal(0, sigma_noise, self.time.shape)
+                self.sigma_noise = np.sqrt(n_transiting_points) * (1 - self.transit_depth_fraction) / self.snr
+                self.flux += np.random.normal(0, self.sigma_noise, self.time.shape)
                 
 
     def get_time_flux(self):
@@ -391,11 +392,19 @@ class Lightcurve_npy_generator:
         path_root = os.path.join(path_to_export, data_format, "raw")
         os.makedirs(path_root, exist_ok=True)
         path_data = os.path.join(path_root, data_name)
-        os.mkdir(path_data)
+        try:
+            os.mkdir(path_data)
+        except Exception as e:
+            print(e)
+            entry = input("do you want to erase current datas ? (y/N)")
+            if entry != "y":
+                raise(SystemExit)
+            shutil.rmtree(path_data)
+            os.mkdir(path_data)
+                
         
         if not isinstance(snr, list):
             snr = [snr]
-            print("here")
         
         self.snr = snr
         
@@ -437,6 +446,9 @@ class Lightcurve_npy_generator:
                 
                 if save_params_txt:
                    d = lc.__dict__
+                   d["snr"] = float(d["snr"])
+                   d["sigma_noise"] = float(d["sigma_noise"])
+                   
                    del d["time"]
                    del d["flux"]
                    del d["flux_pur"]
