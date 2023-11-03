@@ -74,3 +74,8 @@ def bin_lightcurve(time:list, flux:list, cadence:float=None, period:float=None, 
 
     return new_binned_time, new_binned_flux, (std_binned_flux, cadence, river_diagram_shape)
 
+
+
+
+
+
