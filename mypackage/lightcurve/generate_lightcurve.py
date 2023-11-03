@@ -396,7 +396,11 @@ class Lightcurve_npy_generator:
             os.mkdir(path_data)
         except Exception as e:
             print(e)
-            entry = input("do you want to erase current datas ? (y/N)")
+            try:
+                entry = input("do you want to erase current datas ? (y/N)")
+            except EOFError:
+                print("script is running remotely, delete file manually.")
+                entry = False
             if entry != "y":
                 raise(SystemExit)
             shutil.rmtree(path_data)
