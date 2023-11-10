@@ -300,7 +300,7 @@ class Lightcurve_npy_generator_argument_range:
             lc = Lightcurve(t0, period, transit_duration, epoch, observation_time, cadence, transit_depth_fraction, None, snr, timing_variation_params)
             time, flux = lc.get_time_flux()
             
-        
+            print(period_range)
             if name_period_range_format:
                 char = "_"
             else:
