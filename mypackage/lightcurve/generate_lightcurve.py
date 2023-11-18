@@ -134,7 +134,7 @@ class Lightcurve_npy_generator_snr_range_seedable:
         data_name:str,
         compress:bool=False,
         subfolder:bool=False,
-        data_format:str="lightcurve",
+        data_format:str="synthetic",
         name_period_range_format:str=True,
         save_params_txt:bool=True,
         seed:bool=False,
@@ -151,10 +151,10 @@ class Lightcurve_npy_generator_snr_range_seedable:
         
         ):
         
-        data_formats = ["lightcurve", "river_diagram"]
+        data_formats = ["synthetic", "river_diagram"]
     
         if data_format not in data_formats:
-            raise ValueError(f"data format not valid. please select a format from {data_formats}")
+            raise ValueError(f"data format {data_format} not valid. please select a format from {data_formats}")
     
     
    
@@ -241,7 +241,7 @@ class Lightcurve_npy_generator_argument_range:
         data_name:str,
         compress:bool=False,
         subfolder:bool=False,
-        data_format:str="lightcurve",
+        data_format:str="synthetic",
         name_period_range_format:str=True,
         save_params_txt:bool=True,
         init_period_range:Tuple[float, float]=(5, 10), 
@@ -256,7 +256,7 @@ class Lightcurve_npy_generator_argument_range:
         
         ):
         
-        data_formats = ["lightcurve", "river_diagram"]
+        data_formats = ["synthetic", "river_diagram"]
     
         if data_format not in data_formats:
             raise ValueError(f"data format not valid. please select a format from {data_formats}")
