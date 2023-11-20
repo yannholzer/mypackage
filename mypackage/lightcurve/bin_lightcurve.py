@@ -1,7 +1,7 @@
 import numpy as np
 from typing import Tuple
 
-def bin_lightcurve(time:list, flux:list, cadence:float=None, period:float=None, n_bins=None, fill_between=True) -> Tuple[list, list, float, float]:
+def bin_lightcurve(time:list, flux:list, cadence:float=None, period:float=None, n_bins=None, fill_between=True) -> Tuple[list, list, Tuple[list, float, Tuple[float, float]]]:
     """Bin a light curve consisting in a time and a flux array with a chosen cadence or period. The chosen period make sure the light curve can be folded exactly on this periodicity.
 
     Parameters
@@ -17,11 +17,12 @@ def bin_lightcurve(time:list, flux:list, cadence:float=None, period:float=None, 
 
     Returns
     -------
-    Tuple[list, list, float, Tuple[int, int]]
+    Tuple[list, list, Tuple[float, Tuple[int, int]]]
         Return: 
         - new binned time, 
         - new binned flux, 
-        - new cadence
+        - std of binned flux,
+        - new cadence,
         - the shape of a river diagram folded on the given period if given, or empty shape otherwise.
     """
     
