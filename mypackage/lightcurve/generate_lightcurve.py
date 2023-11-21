@@ -123,6 +123,11 @@ class Lightcurve:
         return self.time, self.flux
     
     
+    def median_removed_normalized(self):
+        self.flux -= np.median(self.flux)
+        self.flux/=np.linalg.norm(self.flux)
+        return self
+    
             
         
         

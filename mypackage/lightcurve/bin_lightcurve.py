@@ -1,7 +1,7 @@
 import numpy as np
 from typing import Tuple
 
-def bin_lightcurve(time:list, flux:list, cadence:float=None, period:float=None, n_bins=None, fill_between=True, fill_nan=False) -> Tuple[list, list, Tuple[list, float, Tuple[float, float]]]:
+def bin_lightcurve(time:list, flux:list, cadence:float=None, period:float=None, n_bins=None, fill_between=np.nan) -> Tuple[list, list, Tuple[list, float, Tuple[float, float]]]:
     """Bin a light curve consisting in a time and a flux array with a chosen cadence or period. The chosen period make sure the light curve can be folded exactly on this periodicity.
 
     Parameters
@@ -29,21 +29,24 @@ def bin_lightcurve(time:list, flux:list, cadence:float=None, period:float=None, 
     n_rows = None
     n_columns = None
     if n_bins is not None:
-        new_binned_time = np.linspace(time[0], time[-1], n_bins, endpoint=False)
-        cadence = np.mean(np.diff(new_binned_time))
-        new_binned_time += cadence/2
+        bins = np.linspace(time[0], time[-1], n_bins, endpoint=False)
+        cadence = np.mean(np.diff(bins))
+        bins += cadence
+        binned_time = bins - cadence/2
+        
+        
    
     
     else:
         if cadence is None:
-            cadence = np.mean(np.diff(time))
+            cadence = np.median(np.diff(time)) # median if gap
             
-        n_bins = round((time[-1]-time[0])/cadence)
-        
+        n_bins = round((time[-1] - time[0])/cadence)
         if period is None:
-            
-            new_binned_time = np.arange(time[0] + cadence/2, time[0] + n_bins*cadence+cadence/2, cadence)
-         
+            bins = np.linspace(time[0], time[-1], n_bins, endpoint=False)
+            cadence = np.mean(np.diff(bins))
+            bins += cadence
+            binned_time = bins - cadence/2
         else:
             n_bin_in_period = np.floor(period / cadence).astype(int)
             cadence = period / n_bin_in_period
@@ -51,34 +54,45 @@ def bin_lightcurve(time:list, flux:list, cadence:float=None, period:float=None, 
             n_rows = np.ceil(n_transit).astype(int)
             n_columns = n_bin_in_period
             n_bins = n_rows*n_columns
-            new_binned_time = np.arange(time[0] + cadence/2, time[0] + n_bins*cadence + cadence/2, cadence)[:int(n_rows*n_columns)] # hard fix for dimension bug, TODO
+            max_time = cadence * n_bins + time[0]
+            bins = np.linspace(time[0], max_time, n_bins)
+            cadence = np.mean(np.diff(bins))
+            bins += cadence
+            binned_time = (bins - cadence/2)[:int(n_rows*n_columns)]
+            # hard fix for dimension bug, TODO
+        
+       
         
     mean_flux = np.mean(flux)    
     sigma_flux = np.std(flux)
+    
+    digitized = np.searchsorted(bins, time, side='left') 
+    binned_flux = np.zeros_like(bins)
+    std_binned_flux = np.zeros_like(bins)
+    mean_std_binned_flux = np.zeros_like(bins)
 
-    new_binned_flux = np.ones_like(new_binned_time)*mean_flux
-    std_binned_flux = np.zeros_like(new_binned_time)
-    for i in range(n_bins):
-        bin_start_time = time[0] + i * cadence
-        bin_end_time = time[0] +(i+1) * cadence
-        indices_in_bin = np.where((time >= bin_start_time) & (time < bin_end_time))[0]    
-        if indices_in_bin.size > 0:
-            new_binned_flux[i] = np.mean(flux[indices_in_bin])
-            std_binned_flux[i] = np.std(flux[indices_in_bin])
+
+
+    
+    for i in range(0, len(bins)):
+        window = np.where(digitized == i)[0]
+        if window.size > 0:
+            binned_flux[i] = np.mean(flux[window])
+            std_binned_flux[i] = np.std(flux[window])
+            mean_std_binned_flux[i] = np.std(flux[window])/np.sqrt(window.size)
         else:
-            if fill_between:
-                new_binned_flux[i] = np.random.normal(mean_flux, sigma_flux)
+            if fill_between is True:
+                binned_flux[i] = np.random.normal(mean_flux, sigma_flux)
                 std_binned_flux[i] = sigma_flux
-            elif fill_nan:
-                std_binned_flux[i] = np.nan
+            else:
+                binned_flux[i] = fill_between
+                std_binned_flux[i] = fill_between
                 
     
     
     river_diagram_shape = (n_rows, n_columns)
 
-    return new_binned_time, new_binned_flux, (std_binned_flux, cadence, river_diagram_shape)
-
-
+    return binned_time, binned_flux, (std_binned_flux, mean_std_binned_flux, cadence, river_diagram_shape)
 
 
 
