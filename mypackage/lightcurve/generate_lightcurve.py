@@ -3,6 +3,7 @@ from typing import Tuple
 import os
 import yaml
 import shutil
+from tqdm import tqdm
 
 
 # CONSTANT #############
@@ -289,7 +290,7 @@ class Lightcurve_npy_generator_argument_range:
         
     
         
-        for n in range(n_data):
+        for n in tqdm(range(n_data), desc="creating data"):
             period = np.random.uniform(*init_period_range)
             window = np.random.uniform(*window_range)
             period_range = (period-window/2, period+window/2)
