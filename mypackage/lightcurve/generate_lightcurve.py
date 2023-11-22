@@ -250,6 +250,7 @@ class Lightcurve_npy_generator_argument_range:
         name_period_range_format:str=True,
         save_params_txt:bool=True,
         init_period_range:Tuple[float, float]=(5, 10), 
+        window_range:Tuple[float, float]= (0.2, 0.8),
         transit_duration_range:Tuple[float, float]=(0.05, 0.1),
         epoch:bool=None,                                        # if None, randomly selected between 0 and period, if False, set to period / 2
         t0_range:Tuple[float, float]=(0, 0),
@@ -290,7 +291,7 @@ class Lightcurve_npy_generator_argument_range:
         
         for n in range(n_data):
             period = np.random.uniform(*init_period_range)
-            window = np.random.uniform(0.2, 0.8)
+            window = np.random.uniform(*window_range)
             period_range = (period-window/2, period+window/2)
             period = np.random.uniform(*period_range)
             transit_duration = np.random.uniform(*transit_duration_range)
