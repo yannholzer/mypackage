@@ -296,8 +296,11 @@ class Lightcurve_npy_generator_argument_range:
             period_range = (period-window/2, period+window/2)
             period = np.random.uniform(*period_range)
             transit_duration = np.random.uniform(*transit_duration_range)
+            print("before", snr_range)
             if not snr_range:
                 snr = False
+                print(snr)
+                print(snr_range)
             else:
                 snr = np.random.uniform(*snr_range)
             t0 = np.random.uniform(*t0_range)
