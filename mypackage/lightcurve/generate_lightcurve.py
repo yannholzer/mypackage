@@ -314,13 +314,11 @@ class Lightcurve_npy_generator_argument_range:
             time, flux = lc.get_time_flux()
             
             if name_period_range_format:
-                char = "_"
+                str_p_min = f"{period_range[0]:.2f}".replace(".", "p")
+                str_p_max = f"{period_range[1]:.2f}".replace(".", "p")
+                name = f"lc{str(n).zfill(len(str(n_data-1)))}_{str_snr}_{str_p_min}_{str_p_max}"
             else:
-                char = "-"
-            str_snr = f"{lc.snr:.2f}".replace(".", "p")
-            str_p_min = f"{period_range[0]:.2f}".replace(".", "p")
-            str_p_max = f"{period_range[1]:.2f}".replace(".", "p")
-            name = f"lc{str(n).zfill(len(str(n_data-1)))}_{str_snr}_{str_p_min}{char}{str_p_max}"
+                name = f"lc{str(n).zfill(len(str(n_data-1)))}_{str_snr}
                 
                     
             
