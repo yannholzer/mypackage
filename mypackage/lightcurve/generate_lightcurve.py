@@ -318,7 +318,7 @@ class Lightcurve_npy_generator_argument_range:
                 str_p_max = f"{period_range[1]:.2f}".replace(".", "p")
                 name = f"lc{str(n).zfill(len(str(n_data-1)))}_{str_snr}_{str_p_min}_{str_p_max}"
             else:
-                name = f"lc{str(n).zfill(len(str(n_data-1)))}_{str_snr}
+                name = f"lc{str(n).zfill(len(str(n_data-1)))}_{str_snr}"
                 
                     
             
