@@ -313,6 +313,7 @@ class Lightcurve_npy_generator_argument_range:
             lc = Lightcurve(t0, period, transit_duration, epoch, observation_time, cadence, transit_depth_fraction, None, snr, timing_variation_params)
             time, flux = lc.get_time_flux()
             
+            str_snr = f"{lc.snr:.2f}".replace(".", "p")
             if name_period_range_format:
                 str_p_min = f"{period_range[0]:.2f}".replace(".", "p")
                 str_p_max = f"{period_range[1]:.2f}".replace(".", "p")
