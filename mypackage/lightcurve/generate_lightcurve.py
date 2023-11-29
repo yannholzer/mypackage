@@ -259,8 +259,8 @@ class Lightcurve_npy_generator_argument_range:
         cadence:float=29.4 * MIN_TO_DAYS,
         transit_depth_fraction:float=0.995,
         snr_range:Tuple[float, float]=(2, 25),
+        sigma_noise:bool=None,
         timing_variation_params_range:list[float, float, float]=[(1, 5), (0.3, 2), (0, 2*np.pi)]
-        
         ):
         
         data_formats = ["synthetic", "river_diagram"]
@@ -297,7 +297,10 @@ class Lightcurve_npy_generator_argument_range:
             period = np.random.uniform(*period_range)
             transit_duration = np.random.uniform(*transit_duration_range)
             if not snr_range:
-                snr = False
+                if not sigma_noise:
+                    print("both sigma and snr null, exit.")
+                    raise SystemExit
+                snr = None
             else:
                 snr = np.random.uniform(*snr_range)
             t0 = np.random.uniform(*t0_range)
@@ -310,7 +313,7 @@ class Lightcurve_npy_generator_argument_range:
                     np.random.uniform(*timing_variation_params_range[2]),
             ]
             
-            lc = Lightcurve(t0, period, transit_duration, epoch, observation_time, cadence, transit_depth_fraction, None, snr, timing_variation_params)
+            lc = Lightcurve(t0, period, transit_duration, epoch, observation_time, cadence, transit_depth_fraction, sigma_noise, snr, timing_variation_params)
             time, flux = lc.get_time_flux()
             
             str_snr = f"{lc.snr:.2f}".replace(".", "p")
