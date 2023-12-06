@@ -55,10 +55,10 @@ def bin_lightcurve(time:list, flux:list, cadence:float=None, period:float=None, 
             n_columns = n_bin_in_period
             n_bins = n_rows*n_columns
             max_time = cadence * n_bins + time[0]
-            bins = np.linspace(time[0], max_time, n_bins)
+            bins = np.linspace(time[0], max_time, n_bins, endpoint=False)
             cadence = np.mean(np.diff(bins))
             bins += cadence
-            binned_time = (bins - cadence/2)[:int(n_rows*n_columns)]
+            binned_time = (bins - cadence/2)
             # hard fix for dimension bug, TODO
         
        
