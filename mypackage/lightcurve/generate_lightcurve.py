@@ -123,6 +123,9 @@ class Lightcurve:
     def get_time_flux(self):
         return self.time, self.flux
     
+    def get_time_flux_and_pur(self):
+        return self.time, self.flux, self.flux_pur
+    
     
     def median_removed_normalized(self):
         self.flux -= np.median(self.flux)
