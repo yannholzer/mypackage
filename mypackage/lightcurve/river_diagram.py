@@ -15,7 +15,7 @@ def create_river_diagram(time:list, flux:list, period:float, cadence:float=None,
     Returns
     -------
     _type_
-        return the river diagram, and a tuple of the new binned light curve, cadence
+        return the river diagram, and a tuple of the new binned time, binned flux, and new cadence
     """
     new_time, new_flux, (std, mean_std, new_cadence, river_diagram_shape) = bin_lightcurve(time, flux, period=period, cadence=cadence, fill_between=fill_between)
     
