@@ -14,6 +14,10 @@ def bin_lightcurve(time:list, flux:list, cadence:float=None, period:float=None, 
         The chosen cadence to bin the new light curve
     period : float, optional
         The chosen period that will define a new binning of the light curve
+    n_bins : int, optional
+        The number of bins the light curve should be binned into, has priority over other parameters.
+    fill_between: optional
+        If the light curve should be filled between in gaps. True fills with points drawn from normal distribution with same mean and std as the light curve. Else is filled with the fill_between inputed value
 
     Returns
     -------
