@@ -5,7 +5,7 @@ import os
 
 
 #import metric from yggdrasil
-os.system("/home/yannh/Documents/uni/phd/synch_metrics.sh")
+#os.system("/home/yannh/Documents/uni/phd/synch_metrics.sh")
 
 
 
@@ -180,8 +180,8 @@ plt.show(block=False)
 
 
 # accuracy plot
-window_size = 20
-skip_first = 10
+window_size = 1
+skip_first = 0
 
 plot_data_and_slope("accuracy", window_size, skip_first)
 
