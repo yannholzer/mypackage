@@ -21,7 +21,9 @@ TRANSIT_DEPTH_FRACTION = 0.995 # The fractionnal depth of the transit relative t
 
 
 class Lightcurve:
-    """Light curve class"""
+    """Light curve generator class
+
+    """
     
     def __init__(
         self, 
@@ -36,6 +38,40 @@ class Lightcurve:
         snr:float=None, 
         timing_variation_params:Tuple[float, float, float]=None
         ):
+        """_summary_
+
+        Parameters
+        ----------
+        t0 : float, optional
+            time of the first observation, by default is set to 0
+        period : float, optional
+            period of the transit contained in the light curve, in days, by default is randomly selected between PERIOD_RANGE
+        transit_duration : float, optional
+            duration of the transit, by default randomly selected between TRANSIT_DURATION
+        epoch : float, optional
+            epoch of the transit within the period, by default randomly set in the period
+        observation_time : float, optional
+            the total observation time, with tf = obs time + t0, by default is set to OBSERVATION_TIME
+        cadence : float, optional
+            the cadence of the time serie, by default is set to kepler cadence, CADENCE
+        transit_depth_fraction : float, optional
+            the fraction of the depth inside the transit, by default is set to TRANSIT_DEPTH_FRACTION
+        sigma_noise : float, optional
+            the level of the white noise, by default is the same as the depth, but overwrited by the snr if given.
+        snr : float, optional
+            the snr of the light curve, by default is set randomly
+        timing_variation_params : Tuple[float, float, float], optional
+            the TTV parameter, being [amplitude, period, phase], by default is randomly set.
+
+        Returns
+        -------
+       a light curve object
+
+        Raises
+        ------
+        ValueError
+            if both snr and sigma are given, return an error.
+        """
     
     ### check the default value ###
         if t0 is None:
