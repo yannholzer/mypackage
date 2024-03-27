@@ -1,5 +1,6 @@
 import numpy as np
 from typing import Tuple
+import scipy as sp
 
 def bin_lightcurve(time:list, flux:list, cadence:float=None, period:float=None, n_bins=None, fill_between=np.nan) -> Tuple[list, list, Tuple[list, float, Tuple[float, float]]]:
     """Bin a light curve consisting in a time and a flux array with a chosen cadence or period. The chosen period make sure the light curve can be folded exactly on this periodicity.
@@ -63,7 +64,6 @@ def bin_lightcurve(time:list, flux:list, cadence:float=None, period:float=None, 
             cadence = np.mean(np.diff(bins))
             bins += cadence
             binned_time = (bins - cadence/2)
-            # hard fix for dimension bug, TODO
         
        
         
@@ -98,6 +98,55 @@ def bin_lightcurve(time:list, flux:list, cadence:float=None, period:float=None, 
 
     return binned_time, binned_flux, (std_binned_flux, mean_std_binned_flux, cadence, river_diagram_shape)
 
+
+
+
+def bin_lightcurve_faster(time, flux, period=None, cadence=None, n_bins=None, fill_between=None, statistic="mean"):
+    
+    
+    n_rows = None
+    n_columns = None
+    if n_bins is not None:
+        binned_flux, binned_time, binnumber = sp.stats.binned_statistic(time, flux, n_bins=n_bins, statistic=statistic)
+        cadence = np.mean(np.diff(binned_time))
+        
+    else:
+        if cadence is None:
+            cadence = np.median(np.diff(time)) # median if gap
+            
+        n_bins = round((time[-1] - time[0])/cadence)
+        
+        if period is None:
+            binned_flux, binned_time, binnumber = sp.stats.binned_statistic(time, flux, n_bins=n_bins, statistic=statistic)
+            cadence = np.mean(np.diff(binned_time))
+            
+        else:
+            initial_cadence = np.median(np.diff(time))
+            n_bin_in_period = np.floor(period / initial_cadence).astype(int)
+            cadence = period / n_bin_in_period
+            n_transit = (time[-1] - time[0]) / period   
+            
+            n_rows = np.ceil(n_transit).astype(int)
+            n_columns = n_bin_in_period
+            n_bins = n_rows*n_columns
+            
+            max_time = cadence * n_bins + time[0]
+        
+        
+        
+            binned_flux, binned_time, binnumber = sp.stats.binned_statistic(x=time, values=flux, bins=n_bins, range=(time[0], max_time), statistic=statistic)
+    
+    
+    binned_time = binned_time[:-1]+cadence/2
+    
+    if fill_between is not None:
+        binned_flux[np.isnan(binned_flux)] = fill_between
+    
+        
+    
+    river_diagram_shape = (n_rows, n_columns)
+
+    return binned_time, binned_flux, (cadence, river_diagram_shape)
 
 
 
