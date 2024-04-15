@@ -107,7 +107,7 @@ def bin_lightcurve_faster(time, flux, period=None, cadence=None, n_bins=None, fi
     n_rows = None
     n_columns = None
     if n_bins is not None:
-        binned_flux, binned_time, binnumber = sp.stats.binned_statistic(time, flux, n_bins=n_bins, statistic=statistic)
+        binned_flux, binned_time, binnumber = sp.stats.binned_statistic(time, flux, bins=n_bins, statistic=statistic)
         cadence = np.mean(np.diff(binned_time))
         
     else:
@@ -117,7 +117,7 @@ def bin_lightcurve_faster(time, flux, period=None, cadence=None, n_bins=None, fi
         n_bins = round((time[-1] - time[0])/cadence)
         
         if period is None:
-            binned_flux, binned_time, binnumber = sp.stats.binned_statistic(time, flux, n_bins=n_bins, statistic=statistic)
+            binned_flux, binned_time, binnumber = sp.stats.binned_statistic(time, flux, bins=n_bins, statistic=statistic)
             cadence = np.mean(np.diff(binned_time))
             
         else:
