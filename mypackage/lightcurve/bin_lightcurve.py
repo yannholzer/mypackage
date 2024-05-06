@@ -101,7 +101,7 @@ def bin_lightcurve(time:list, flux:list, cadence:float=None, period:float=None, 
 
 
 
-def bin_lightcurve_faster(time, flux, period=None, cadence=None, n_bins=None, fill_between=None, statistic="mean"):
+def bin_lightcurve_faster(time, flux, period=None, cadence=None, n_bins=None, fill_between=None, statistic="mean", return_bin_std=False):
     
     
     n_rows = None
@@ -109,6 +109,10 @@ def bin_lightcurve_faster(time, flux, period=None, cadence=None, n_bins=None, fi
     if n_bins is not None:
         binned_flux, binned_time, binnumber = sp.stats.binned_statistic(time, flux, bins=n_bins, statistic=statistic)
         cadence = np.mean(np.diff(binned_time))
+        
+        if return_bin_std:
+            binned_flux_std, *_ = sp.stats.binned_statistic(time, flux, bins=n_bins, statistic="std")
+            
         
     else:
         if cadence is None:
@@ -120,8 +124,16 @@ def bin_lightcurve_faster(time, flux, period=None, cadence=None, n_bins=None, fi
             binned_flux, binned_time, binnumber = sp.stats.binned_statistic(time, flux, bins=n_bins, statistic=statistic)
             cadence = np.mean(np.diff(binned_time))
             
+            if return_bin_std:
+                binned_flux_std, *_ = sp.stats.binned_statistic(time, flux, bins=n_bins, statistic="std")
+            
+                
+            
         else:
-            initial_cadence = np.median(np.diff(time))
+            if cadence is None:
+                initial_cadence = np.median(np.diff(time))
+            else:
+                initial_cadence = cadence
             n_bin_in_period = np.floor(period / initial_cadence).astype(int)
             cadence = period / n_bin_in_period
             n_transit = (time[-1] - time[0]) / period   
@@ -135,6 +147,9 @@ def bin_lightcurve_faster(time, flux, period=None, cadence=None, n_bins=None, fi
         
         
             binned_flux, binned_time, binnumber = sp.stats.binned_statistic(x=time, values=flux, bins=n_bins, range=(time[0], max_time), statistic=statistic)
+            
+            if return_bin_std:
+                binned_flux_std, *_ = sp.stats.binned_statistic(time, flux, bins=n_bins, statistic="std")
     
     
     binned_time = binned_time[:-1]+cadence/2
@@ -146,7 +161,25 @@ def bin_lightcurve_faster(time, flux, period=None, cadence=None, n_bins=None, fi
     
     river_diagram_shape = (n_rows, n_columns)
 
+    if return_bin_std:
+        return binned_time, binned_flux, binned_flux_std, (cadence, river_diagram_shape)
+    
     return binned_time, binned_flux, (cadence, river_diagram_shape)
 
 
+def create_phasefolded_lightcurve(time, flux, period, t0=0, rebin=False, cadence=None, n_bins=None, fill_between=None, statistic="mean", return_bin_std=False):
+    
+    if cadence is None:
+        cadence = np.median(np.diff(time))
+    
+    phase = (time - t0) % period
+    sorting_args = np.argsort(phase)
+    sorted_phase = phase[sorting_args]
+    sorted_flux = flux[sorting_args]
+    
+    if rebin:
+        return bin_lightcurve_faster(sorted_phase, sorted_flux, period=None, cadence=cadence, n_bins=None, fill_between=fill_between, statistic=statistic, return_bin_std=return_bin_std)
+    
+    else:
+        return sorted_phase, sorted_flux
 
