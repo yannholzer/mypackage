@@ -137,7 +137,7 @@ class Lightcurve:
             
         ### add the noise ###
         if sigma_noise is None and snr is None:
-            self.snr = np.random.uniform(2, 25)
+            self.snr = np.random.uniform(6, 25)
             #as snr = sqrt(N) * D / sigma
             self.sigma_noise = np.sqrt(n_transiting_points) * (1 - self.transit_depth_fraction) / self.snr
             self.flux += np.random.normal(0, self.sigma_noise, self.time.shape)

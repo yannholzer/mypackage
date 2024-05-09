@@ -126,6 +126,9 @@ def bin_lightcurve_faster(time, flux, period=None, cadence=None, n_bins=None, fi
             
             if return_bin_std:
                 binned_flux_std, *_ = sp.stats.binned_statistic(time, flux, bins=n_bins, statistic="std")
+                count, *_ = sp.stats.binned_statistic(time, flux, bins=n_bins, statistic="count")
+                binned_flux_std_averaged = binned_flux_std/np.sqrt(count)
+                
             
                 
             
@@ -162,7 +165,7 @@ def bin_lightcurve_faster(time, flux, period=None, cadence=None, n_bins=None, fi
     river_diagram_shape = (n_rows, n_columns)
 
     if return_bin_std:
-        return binned_time, binned_flux, binned_flux_std, (cadence, river_diagram_shape)
+        return binned_time, binned_flux, binned_flux_std, binned_flux_std_averaged, (cadence, river_diagram_shape)
     
     return binned_time, binned_flux, (cadence, river_diagram_shape)
 
@@ -172,13 +175,22 @@ def create_phasefolded_lightcurve(time, flux, period, t0=0, rebin=False, cadence
     if cadence is None:
         cadence = np.median(np.diff(time))
     
-    phase = (time - t0) % period
+    phase = (time % period) - t0
     sorting_args = np.argsort(phase)
     sorted_phase = phase[sorting_args]
     sorted_flux = flux[sorting_args]
     
     if rebin:
-        return bin_lightcurve_faster(sorted_phase, sorted_flux, period=None, cadence=cadence, n_bins=None, fill_between=fill_between, statistic=statistic, return_bin_std=return_bin_std)
+        if return_bin_std:
+            binned_time, binned_flux, binned_flux_std, binned_flux_std_averaged, (cadence, river_diagram_shape) = bin_lightcurve_faster(sorted_phase, sorted_flux, period=None, cadence=cadence, n_bins=None, fill_between=fill_between, statistic=statistic, return_bin_std=return_bin_std)
+            
+            
+            return binned_time, binned_flux, binned_flux_std, binned_flux_std_averaged
+        else:
+            binned_time, binned_flux, (cadence, river_diagram_shape) =  bin_lightcurve_faster(sorted_phase, sorted_flux, period=None, cadence=cadence, n_bins=None, fill_between=fill_between, statistic=statistic, return_bin_std=return_bin_std)
+
+            return binned_time, binned_flux
+            
     
     else:
         return sorted_phase, sorted_flux
