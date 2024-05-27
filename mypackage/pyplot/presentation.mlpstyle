@@ -1,0 +1,16 @@
+font.size: 20
+
+xtick.major.size : 5
+xtick.major.width : 2
+xtick.minor.size : 3
+xtick.minor.width : 2
+
+ytick.major.size : 5
+ytick.major.width : 2
+ytick.minor.size : 3
+ytick.minor.width : 2
+
+axes.linewidth : 3
+
+savefig.dpi : 120
+
