@@ -92,6 +92,8 @@ class Lightcurve:
             transit_depth_fraction = TRANSIT_DEPTH_FRACTION
         if snr is not None and sigma_noise is not None:
             raise ValueError("Please enter only one argument for either the snr or the sigma noise.")
+        else:
+            pass
         
         if timing_variation_params is None:
             timing_variation_amplitude = np.random.uniform(0, 1.5)*transit_duration
