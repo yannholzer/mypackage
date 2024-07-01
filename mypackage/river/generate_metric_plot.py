@@ -10,9 +10,9 @@ os.system("/home/yannh/Documents/uni/phd/synch_metrics.sh")
 
 
 
-metric_path ="/home/yannh/Documents/uni/phd/river_ml/metrics/tiramisu_htira-bclf_regular_trainingset_kepler_v16rho1_5to20/tiramisu_htira-bclf_regular.pkl"
 metric_path ="/home/yannh/Documents/uni/phd/river_ml/metrics/tiramisu_stira-bclf_regular_trainingset_kepler_v16rho1_5to20/tiramisu_stira-bclf_regular.pkl"
 metric_path ="/home/yannh/Documents/uni/phd/river_ml/metrics/tiramisu_mtira-bclf_regular_trainingset_kepler_v16rho1_5to20/tiramisu_mtira-bclf_regular.pkl"
+metric_path ="/home/yannh/Documents/uni/phd/river_ml/metrics/tiramisu_htira-bclf_regular_trainingset_kepler_v16rho1_5to20/tiramisu_htira-bclf_regular.pkl"
 
 with open(metric_path, "rb") as f:
     metrics = pd.read_pickle(f)
