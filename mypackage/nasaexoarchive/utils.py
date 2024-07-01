@@ -1,11 +1,11 @@
 import csv
 import numpy as np
 import pandas as pd
+from pathlib import Path
 
 
 
-
-def csv_to_dict(cumtable:str, lc_data_path:str)->dict:
+def csv_to_dict(cumtable:str|Path, lc_data_path:str|Path)->dict:
     """Function to read the cumulative table and return useful information on the given light curve at the given period
 
     Parameters
@@ -22,6 +22,8 @@ def csv_to_dict(cumtable:str, lc_data_path:str)->dict:
     dict
         A dictionary containing the information of the lightcurve
     """
+    cumtable = Path(cumtable)
+    lc_data_path = Path(lc_data_path)
     header_line = 0
     with open(cumtable) as csvfile:
         reading = csv.reader(csvfile)
@@ -32,7 +34,7 @@ def csv_to_dict(cumtable:str, lc_data_path:str)->dict:
     
     cum_table = pd.read_csv(cumtable, sep=",", header=header_line)
     
-    lc_name = lc_data_path.split("/")[-1].split(".npy")[0]
+    lc_name = lc_data_path.with_suffix("").name
     
     lc_time, _ = np.load(lc_data_path)      
         
