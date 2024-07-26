@@ -51,26 +51,27 @@ def create_river_diagram_faster(time:list, flux:list, period:float, cadence:floa
     return river_diagram, (binned_time, binned_flux, new_cadence)
 
 
-def transittime_to_riverdiagram_xy(transit_time, river_diagram, rd_time):    
-    """Create a river diagram folded on the qats period, and add the qats solution on top of it
-    Parameters
+
+def transittime_to_riverdiagram_xy(transit_time: np.ndarray, t0: float, river_diagram: np.ndarray, river_diagram_folding_period: float):    
+    """Convert the transit time into x and y river diagram points
     ----------
-    transit_time : _type_
-        The time of transits
-    river_diagram: _type_
-        The river diagram matrix
-    rd_time:
-        The time returned by the creation of the river diagram
+    transit_time : np.ndarray
+        The time of transits.
+    t0 : float
+        The first time of the light curve.
+    river_diagram: np.ndarray
+        The river diagram matrix.
+    river_diagram_folding_period:
+        The time returned by the creation of the river diagram.
     Returns
     -------
-    _type_
-        return the x and y scatter points that corespond to the given river diagram
+    transit_time_rd : np.ndarray
+        return the river diagram x points.
+    transit_number_rd : np.ndarray
+        return the river diagram y points.
     """
     
-    transits_indices_binned = np.zeros(transit_time.shape[0], dtype=int)
-    for i_t, t in enumerate(transit_time):
-        transits_indices_binned[i_t] = np.abs(rd_time - t).argmin()
+    transit_time_rd = np.floor((transit_time - t0) % river_diagram_folding_period / river_diagram_folding_period * river_diagram.shape[1]).astype(int)
+    transit_number_rd = np.floor((transit_time - t0) / river_diagram_folding_period).astype(int)
     
-    transit_number = np.floor(transits_indices_binned / river_diagram.shape[1])
-    transits_indices_binned = transits_indices_binned % river_diagram.shape[1]
-    return transits_indices_binned, transit_number
+    return transit_time_rd, transit_number_rd

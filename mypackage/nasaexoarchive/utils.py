@@ -59,12 +59,12 @@ def csv_to_dict(cumtable:str|Path, lc_data_path:str|Path)->dict:
 
     else:
         closest_period = 0
-    lc_info["lc_id"] = lc_id
-    lc_info["lc_file_name"] = lc_name
-    lc_info["period"] = cum_table_koi.koi_period.values[closest_period]
-    lc_info["epoch"] = cum_table_koi.koi_time0bk.values[closest_period]
-    lc_info["snr_file"] = snr
-    lc_info["snr_table"] = cum_table_koi.koi_model_snr.values[closest_period]
+    lc_info["lc_id"] = int(lc_id)
+    lc_info["lc_file_name"] = str(lc_name)
+    lc_info["period"] = float(cum_table_koi.koi_period.values[closest_period])
+    lc_info["epoch"] = float(cum_table_koi.koi_time0bk.values[closest_period])
+    lc_info["snr_file"] = float(snr)
+    lc_info["snr_table"] = float(cum_table_koi.koi_model_snr.values[closest_period])
     
     
     epoch = lc_info["epoch"] % lc_info["period"]
