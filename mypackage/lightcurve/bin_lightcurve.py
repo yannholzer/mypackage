@@ -153,6 +153,9 @@ def bin_lightcurve_faster(time, flux, period=None, cadence=None, n_bins=None, fi
             
             if return_bin_std:
                 binned_flux_std, *_ = sp.stats.binned_statistic(time, flux, bins=n_bins, statistic="std")
+                count, *_ = sp.stats.binned_statistic(time, flux, bins=n_bins, statistic="count")
+                binned_flux_std_averaged = binned_flux_std/np.sqrt(count)
+
     
     
     binned_time = binned_time[:-1]+cadence/2
