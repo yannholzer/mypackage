@@ -422,8 +422,11 @@ def transit_time_from_fit(params: list,
     
     tt0 = transit_time[0] + period/2
     if complet:
-        start_number = np.floor((time[0]-transit_time[0]) / period)
-        end_number = np.floor((transit_time[-1]-tt0) / period) + np.floor((time[-1]-transit_time[-1])/period)
+        # start number in negative as the fit on the transit time has a translation operation
+        #start_number = np.floor((time[0]-transit_time[0]) / period)
+        start_number = np.floor((time[0]-tt0[0]) / period)
+        #end_number = np.floor((transit_time[-1]-tt0) / period) + np.floor((time[-1]-transit_time[-1])/period)
+        end_number = np.floor((time[-1]-tt0) / period)
         transit_number = np.arange(start_number, end_number)
     else:
         transit_number = np.floor((transit_time - transit_time[0]-period/2) / period)
