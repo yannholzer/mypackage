@@ -3,6 +3,7 @@ from typing import Tuple, NamedTuple
 from dataclasses import dataclass, asdict
 from collections import namedtuple
 from mypackage.lightcurve.bin_lightcurve import bin_lightcurve_faster
+from mypackage.stats.fit import least_square, weighted_least_square
 from bls.src.algo.bls import slide_window_sr
 
 
@@ -424,7 +425,7 @@ def transit_time_from_fit(params: list,
     if complet:
         # start number in negative as the fit on the transit time has a translation operation
         #start_number = np.floor((time[0]-transit_time[0]) / period)
-        start_number = np.floor((time[0]-tt0[0]) / period)
+        start_number = np.floor((time[0]-tt0) / period)
         #end_number = np.floor((transit_time[-1]-tt0) / period) + np.floor((time[-1]-transit_time[-1])/period)
         end_number = np.floor((time[-1]-tt0) / period)
         transit_number = np.arange(start_number, end_number)
