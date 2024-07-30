@@ -174,7 +174,7 @@ def transit_time_to_TTV(time: np.ndarray,
 def sin_fit(observation_time: float, 
             transit_time: np.ndarray, 
             period: float, 
-            transit_time_error: float | np.ndarray = 30,
+            transit_time_error: float | np.ndarray = 30 / 60 / 24,
             frequency_grid_resolution: int = 51,
             ) -> NamedTuple:
     """Fit a linear + sinusoidal model on the transit time to get the best fit parameters.
