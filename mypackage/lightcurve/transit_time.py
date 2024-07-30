@@ -174,6 +174,7 @@ def transit_time_to_TTV(time: np.ndarray,
 def sin_fit(observation_time: float, 
             transit_time: np.ndarray, 
             period: float, 
+            transit_time_error: float | np.ndarray = None,
             frequency_grid_resolution: int = 51,
             ) -> NamedTuple:
     """Fit a linear + sinusoidal model on the transit time to get the best fit parameters.
@@ -186,6 +187,8 @@ def sin_fit(observation_time: float,
         The array of transit time.
     period : float
         The period of the transit.
+    transit_time_error : float | np.ndarray, optional
+        The error on the transit time, by default None
     frequency_grid_resolution : int, optional
         The resolution of the frequency grid the sinusoidal fit is tested on, by default 51.
 
@@ -246,14 +249,24 @@ def sin_fit(observation_time: float,
         min_period_freq = 10 # number of lines, translate to the number of orbital periods
         max_period_freq = 2 * (observation_time/period_fit)
         freq = np.linspace(1/max_period_freq, 1/min_period_freq, frequency_grid_resolution)   
-        for f in freq:                     
+        for f in freq:   
+                              
             A = np.vstack([np.sin(2*np.pi*f*transit_number), np.cos(2*np.pi*f*transit_number), transit_number, np.ones_like(transit_number)]).T
-            p = np.linalg.lstsq(A, transit_time, rcond=None)[0]
+            
+            if transit_time_error is None:
+                p = least_square(A, transit_time)
+            else:
+                if isinstance(transit_time_error, float):
+                    transit_time_error = np.ones_like(transit_time) * transit_time_error
+                W = np.diag(1/transit_time_error**2)
+                p = weighted_least_square(A, transit_time, W)
+            
+            
             sin_amplitude, cos_amplitude, linear_coeff, linear_intersect = p
             
             transit_time_model = A @ p
             
-            reduced_chi2 = reduced_chi2_f(transit_time, transit_time_model)
+            reduced_chi2 = reduced_chi2_f(transit_time, transit_time_model, transit_time_error)
                         
             if reduced_chi2 < best_params.reduced_chi2:
                 best_params.linear_coeff = linear_coeff
@@ -277,7 +290,8 @@ def sin_fit(observation_time: float,
 
 
 def linear_fit(transit_time: np.ndarray, 
-               period: float
+               period: float,
+               transit_time_error: float | np.ndarray = None
                ) -> NamedTuple:
     """Fit a linear model on the transit time to get the best fit parameters.
 
@@ -287,7 +301,8 @@ def linear_fit(transit_time: np.ndarray,
         The array of transit time.
     period : float
         The period of the transit.
-   
+    transit_time_error : float | np.ndarray, optional
+        The error on the transit time, by default None
     Returns
     -------
     parameters: NamedTuple
@@ -335,12 +350,20 @@ def linear_fit(transit_time: np.ndarray,
         
         
         A = np.vstack([transit_number, np.ones_like(transit_number)]).T 
-        p = np.linalg.lstsq(A, transit_time, rcond=None)[0]
+        if transit_time_error is None:
+            p = least_square(A, transit_time)
+        else:
+            if isinstance(transit_time_error, float):
+                transit_time_error = np.ones_like(transit_time) * transit_time_error
+            W = np.diag(1/transit_time_error**2)
+            p = weighted_least_square(A, transit_time, W)
+        
+        
         linear_coeff, linear_intersect = p
         
         transit_time_model = A @ p
         
-        reduced_chi2 = reduced_chi2_f(transit_time, transit_time_model)
+        reduced_chi2 = reduced_chi2_f(transit_time, transit_time_model, transit_time_error)
                     
         if reduced_chi2 < best_params.reduced_chi2:
             best_params.linear_coeff = linear_coeff
@@ -352,7 +375,6 @@ def linear_fit(transit_time: np.ndarray,
     
     best_params = asdict(best_params)
     result = namedtuple("best_params", [*best_params])(**best_params)
-    
 
         
     return result
@@ -360,7 +382,7 @@ def linear_fit(transit_time: np.ndarray,
 
 
 
-def reduced_chi2_f(transit_time: np.ndarray, transit_time_model: np.ndarray, transit_time_error: float = 30 / 60 / 24) -> float:
+def reduced_chi2_f(transit_time: np.ndarray, transit_time_model: np.ndarray, transit_time_error: np.ndarray | float = 30 / 60 / 24) -> float:
     """Calculate the reduced chi2 of the transit time fit.
 
     Parameters
@@ -427,7 +449,7 @@ def transit_time_from_fit(params: list,
         #start_number = np.floor((time[0]-transit_time[0]) / period)
         start_number = np.floor((time[0]-tt0) / period)
         #end_number = np.floor((transit_time[-1]-tt0) / period) + np.floor((time[-1]-transit_time[-1])/period)
-        end_number = np.floor((time[-1]-tt0) / period)
+        end_number = np.ceil((time[-1]-tt0) / period)
         transit_number = np.arange(start_number, end_number)
     else:
         transit_number = np.floor((transit_time - transit_time[0]-period/2) / period)
@@ -470,6 +492,31 @@ def likelihood_from_transit_time(time: np.ndarray, flux: np.ndarray, transit_tim
         print("not implemented yet")
         
     
+def normalize_metric(metric: np.ndarray) -> np.ndarray:
+    """Normalize the metric between 0 and 1.
+
+    Parameters
+    ----------
+    metric : np.ndarray
+        The metric array to normalize.
+
+    Returns
+    -------
+    np.ndarray
+        The normalized metric array.
+    """
+    if metric.size < 2:
+        return metric
+    
+    min_metric = np.min(metric)
+    max_metric = np.max(metric)
+    
+    if max_metric == min_metric:
+        return metric
+    
+    normalized_metric = (metric - min_metric) / (max_metric - min_metric)
+    return normalized_metric
+
         
     
     
