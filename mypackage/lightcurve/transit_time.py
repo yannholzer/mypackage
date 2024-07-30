@@ -174,7 +174,7 @@ def transit_time_to_TTV(time: np.ndarray,
 def sin_fit(observation_time: float, 
             transit_time: np.ndarray, 
             period: float, 
-            transit_time_error: float | np.ndarray = None,
+            transit_time_error: float | np.ndarray = 30,
             frequency_grid_resolution: int = 51,
             ) -> NamedTuple:
     """Fit a linear + sinusoidal model on the transit time to get the best fit parameters.
@@ -253,13 +253,10 @@ def sin_fit(observation_time: float,
                               
             A = np.vstack([np.sin(2*np.pi*f*transit_number), np.cos(2*np.pi*f*transit_number), transit_number, np.ones_like(transit_number)]).T
             
-            if transit_time_error is None:
-                p = least_square(A, transit_time)
-            else:
-                if isinstance(transit_time_error, float):
-                    transit_time_error = np.ones_like(transit_time) * transit_time_error
-                W = np.diag(1/transit_time_error**2)
-                p = weighted_least_square(A, transit_time, W)
+            if isinstance(transit_time_error, float):
+                transit_time_error = np.ones_like(transit_time) * transit_time_error
+            W = np.diag(1/transit_time_error**2)
+            p = weighted_least_square(A, transit_time, W)
             
             
             sin_amplitude, cos_amplitude, linear_coeff, linear_intersect = p
@@ -350,14 +347,12 @@ def linear_fit(transit_time: np.ndarray,
         
         
         A = np.vstack([transit_number, np.ones_like(transit_number)]).T 
-        if transit_time_error is None:
-            p = least_square(A, transit_time)
-        else:
-            if isinstance(transit_time_error, float):
-                transit_time_error = np.ones_like(transit_time) * transit_time_error
-            W = np.diag(1/transit_time_error**2)
-            p = weighted_least_square(A, transit_time, W)
         
+        if isinstance(transit_time_error, float):
+            transit_time_error = np.ones_like(transit_time) * transit_time_error
+        W = np.diag(1/transit_time_error**2)
+        p = weighted_least_square(A, transit_time, W)
+    
         
         linear_coeff, linear_intersect = p
         
