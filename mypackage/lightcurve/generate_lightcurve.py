@@ -398,6 +398,14 @@ class Lightcurve_npy_generator_argument_range:
     
 
 
+
+        
+        
+        
+    
+    
+    
+
         
 
  
