@@ -72,6 +72,9 @@ class CumulativeColumns(Enum):
     STELLAR_AGE_GYR                         = 'koi_sage'
     VETTING_STATUS                          = 'koi_vet_stat'
     VETTING_DATE                            = 'koi_vet_date'
+    NUMBER_OF_PLANETS                       = 'koi_count'
+    NUMBER_OF_TRANSITS                      = 'koi_num_transits'
+    
     
     
 def usage():
